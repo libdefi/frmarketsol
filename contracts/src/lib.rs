@@ -69,8 +69,9 @@ impl Market {
             "Betting period has ended"
         );
 
+        // `option`をミュータブルに借用
         let option = self.options.entry(round_id).or_insert_with(HashMap::new);
-        let opt = option.entry(youtube_id.clone()).or_insert(BetOption {
+        let opt = option.entry(youtube_id.clone()).or_insert(Option {
             youtube_id: youtube_id.clone(),
             creation_time: Clock::get().unwrap().unix_timestamp as u64,
             total_invested: 0,
@@ -80,7 +81,9 @@ impl Market {
         });
 
         opt.total_invested += amount;
-        *opt.shares.entry(user).or_insert(0) += amount;
+
+        // ユーザーのシェアを更新
+        *opt.shares.entry(user).or_insert(0) += amount; // ここでミュータブルな参照を使用
         round.total_invested += amount;
     }
 
@@ -96,9 +99,10 @@ impl Market {
     pub fn claim_reward(&mut self, youtube_id: String, round_id: u64, user: Pubkey) -> u64 {
         let option = self
             .options
-            .get(&round_id)
-            .and_then(|o| o.get(&youtube_id))
+            .get_mut(&round_id)
+            .and_then(|o| o.get_mut(&youtube_id)) // ミュータブルな参照を取得
             .expect("Option does not exist");
+
         let shares = option.shares.get(&user).unwrap_or(&0);
         assert!(*shares > 0, "No claimable reward in this market");
 
