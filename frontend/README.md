@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# A Solana Frontend Development Course by Helius
 
-## Getting Started
+Hey there! This repository was
+Hey Baylor Bears! This repository was designed by [Nathan Galindo](https://twitter.com/_zebedee_) on behalf of [Helius](https://www.helius.dev/). It is a course that is made up of a series of projects to help you get started developing frontend applications on [Solana](https://solana.com/). Why Solana? Because Solana is a third-generation protocol with incredibly high throughput and astonishingly low transaction fees, making it an ideal blockchain for builders to hack out the next generation of the internet!
 
-First, run the development server:
+<img width="1165" alt="Screenshot 2024-01-04 at 9 24 40 AM" src="https://github.com/masterzorgon/solana-frontend-development-course/assets/155211932/c841b9be-3e26-4a3a-bf92-856812a3d27e">
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Video Series
+
+This application is paired with a video series what walks you through each project! [Click this link](https://www.youtube.com/watch?v=8azRe9PRLg0&list=PLMZny7wGLM6w4t7pMGATxFTjjMduTsEiF) to follow along.
+
+![image](https://github.com/masterzorgon/solana-frontend-development-course/assets/155211932/5f3bd590-c19d-4d1f-954e-6bb0aa4fd767)
+
+# Tech Stack
+
+This course focuses on front-end development, and challenges you to build small applications using industry standard front-end technologies as well as some web3 frameworks to interact with the [Solana JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api?gclid=Cj0KCQjwxIOXBhCrARIsAL1QFCZyftNFV4i4Sygxkr6LdPazw2sLMPyhQbVqFID-yy8QSqf81dxJHUoaAk2ZEALw_wcB). Listed below are the main frameworks and tools you will be working with:
+
+-   [Next.js](https://nextjs.org/docs)
+-   [TypeScript](https://www.typescriptlang.org/docs/)
+-   [Tailwind CSS](https://tailwindcss.com/docs/installation)
+-   [solana/web3.js](https://solana-labs.github.io/solana-web3.js/)
+-   [solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/index.html)
+-   [solana/wallet-adapter-react](https://solana-labs.github.io/wallet-adapter/)
+
+The frameworks and tools used to build out these projects were carefully selected because they are the tools real companies are using in the blockchain industry to build out production applications. Even though they may be new to you, becoming familiar with them will greatly benefit your hireability as a software engineer (both within, and beyond the blockchain industry)!
+
+# Getting Started
+
+Navigate to a folder in your local environment and copy/paste the following commands into your terminal:
+
+```
+  git clone git@github.com:masterzorgon/solana-frontend-development-course.git
+  cd solana-frontend-development-course
+  nvm install 20
+  nvm use 20
+  yarn
+  yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+At this point, the repository should be installed to your computer and hosted on your browser at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Workflow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+For each project, there is a card which contains a brief description of the project, as well as two buttons: "preview" and "starter".
 
-## Learn More
+-   The "preview" button, when clicked, will direct you to a finished version of the project. This is for your reference as you build the project on your own.
+-   The "starter" button, when clicked, will take you to a blank page. The pages labeled "starter.jsx" within your repository are blank files that you will use to build out your own version of the given project.
 
-To learn more about Next.js, take a look at the following resources:
+# Credits
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If you find these learning materials helpful, you can help me out in the following ways:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   By giving this repository a star 🌟
+-   By giving me a follow on X: [@_zebedee_](https://twitter.com/_zebedee_)
+-   By learning more about Helius via our website: [helius.dev](https://www.helius.dev/)
