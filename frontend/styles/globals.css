@@ -6,6 +6,10 @@ html {
     background-color: #161b19;
 }
 
+.wallet-adapter-button-trigger {
+    background-color: black !important; /* 背景色を黒に設定 */
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;

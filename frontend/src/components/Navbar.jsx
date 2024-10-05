@@ -1,17 +1,48 @@
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Music } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const Navbar = () => {
-    return (
-        <nav className='p-4 flex justify-between items-center bg-zinc-800'>
-            <a href="/">
-                <div className="relative">
-                    <img src="/helius-orange.png" width="60" className="transition-transform duration-200 transform hover:scale-100 hover:cursor-pointer" alt="Helius logo" />
-                    <img src="/helius-white.png" width="60" className="absolute top-0 left-0 opacity-0 transition-opacity duration-200 transform hover:opacity-100 hover:cursor-pointer" alt="Helius logo" />
-                </div>
-            </a>
+    const [isMounted, setIsMounted] = useState(false);
 
-            <WalletMultiButton className='!bg-helius-orange hover:!bg-black transition-all duration-200 !rounded-lg' />
-        </nav>
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    return (
+        <header className="flex justify-between items-center mb-8">
+            <Link href="/">
+                <Image
+                    src="/title.svg"
+                    alt="wkly.music"
+                    className="h-6 sm:h-10"
+                    width={120}
+                    height={120}
+                />
+            </Link>
+            <div className="flex items-center">
+                <button className="sm:mr-4 md:mr-4 w-6 h-6 flex items-center justify-center rounded-full border border-black border-1 bg-white hover:bg-gray-100 text-black focus:outline-none">
+                    ?
+                </button>
+                <a
+                    href="https://charts.youtube.com/charts/TrendingVideos/us/RightNow"
+                    className="mr-4 w-6 h-6 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 text-black focus:outline-none"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <Music size={24} />
+                </a>
+                <div className="mr-2">
+                    {isMounted && ( // Render only after the component has mounted
+                        <WalletMultiButton 
+                            className="!bg-black hover:!bg-gray-800 transition-all duration-200 !rounded-lg"
+                        />
+                    )}
+                </div>
+            </div>
+        </header>
     );
 };
 
