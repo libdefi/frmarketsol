@@ -1,11 +1,7 @@
 // contracts/src/lib.rs
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::entrypoint::ProgramResult;
-use solana_sdk::{
-    account_info::AccountInfo,
-    pubkey::Pubkey,
-    sysvar::{clock::Clock, Sysvar},
-};
+use solana_program::{account_info::AccountInfo, entrypoint, pubkey::Pubkey};
 use std::collections::HashMap;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -28,7 +24,7 @@ pub struct Round {
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Option {
     pub youtube_id: String,
-    pub creation_time: u64,
+    // pub creation_time: u64,
     pub total_invested: u64,
     pub total_shares: u64,
     pub shares: HashMap<Pubkey, u64>,
@@ -64,16 +60,16 @@ impl Market {
             .get_mut(&round_id)
             .expect("Round does not exist");
         assert!(round.is_active, "Betting is not active for this round");
-        assert!(
-            round.betting_deadline > Clock::get().unwrap().unix_timestamp as u64,
-            "Betting period has ended"
-        );
+        // assert!(
+        //     round.betting_deadline > Clock::get().unwrap().unix_timestamp as u64,
+        //     "Betting period has ended"
+        // );
 
         // `option`をミュータブルに借用
         let option = self.options.entry(round_id).or_insert_with(HashMap::new);
         let opt = option.entry(youtube_id.clone()).or_insert(Option {
             youtube_id: youtube_id.clone(),
-            creation_time: Clock::get().unwrap().unix_timestamp as u64,
+            // creation_time: Clock::get().unwrap().unix_timestamp as u64,
             total_invested: 0,
             total_shares: 0,
             shares: HashMap::new(),
@@ -113,6 +109,7 @@ impl Market {
     }
 }
 
+entrypoint!(process_instruction);
 // エントリーポイント
 pub fn process_instruction(
     program_id: &Pubkey,
