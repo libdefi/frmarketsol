@@ -101,7 +101,7 @@ impl Market {
     }
 
     pub fn claim_reward(&mut self, youtube_id: String, round_id: u64, user: Pubkey) -> u128 {
-        let option = self
+        let option: &mut Option = self
             .options
             .get_mut(&round_id)
             .and_then(|o| o.get_mut(&youtube_id))
