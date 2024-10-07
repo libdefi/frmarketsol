@@ -1,4 +1,3 @@
-// contracts/src/lib.rs
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::entrypoint::ProgramResult;
 use solana_program::{account_info::AccountInfo, entrypoint, pubkey::Pubkey};
@@ -6,7 +5,6 @@ use std::collections::HashMap;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Market {
-    pub usdc_token: Pubkey,
     pub current_round_id: u64,
     pub rounds: HashMap<u64, Round>,
     pub options: HashMap<u64, HashMap<String, Option>>, // round_id -> (youtube_id -> Option)
@@ -16,7 +14,7 @@ pub struct Market {
 pub struct Round {
     pub betting_deadline: u64,
     pub is_active: bool,
-    pub total_invested: u64,
+    pub total_invested: u128,
     pub round_owner: Pubkey,
     pub winner_ids: Vec<String>,
 }
@@ -24,17 +22,15 @@ pub struct Round {
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Option {
     pub youtube_id: String,
-    // pub creation_time: u64,
-    pub total_invested: u64,
-    pub total_shares: u64,
-    pub shares: HashMap<Pubkey, u64>,
+    pub total_invested: u128,
+    pub total_shares: u128,
+    pub shares: HashMap<Pubkey, u128>,
     pub resolved: bool,
 }
 
 impl Market {
-    pub fn new(usdc_token: Pubkey) -> Self {
+    pub fn new() -> Self {
         Self {
-            usdc_token,
             current_round_id: 0,
             rounds: HashMap::new(),
             options: HashMap::new(),
@@ -54,22 +50,16 @@ impl Market {
         self.current_round_id = round_id;
     }
 
-    pub fn place_bet(&mut self, youtube_id: String, amount: u64, round_id: u64, user: Pubkey) {
+    pub fn place_bet(&mut self, youtube_id: String, amount: u128, round_id: u64, user: Pubkey) {
         let round = self
             .rounds
             .get_mut(&round_id)
             .expect("Round does not exist");
         assert!(round.is_active, "Betting is not active for this round");
-        // assert!(
-        //     round.betting_deadline > Clock::get().unwrap().unix_timestamp as u64,
-        //     "Betting period has ended"
-        // );
 
-        // `option`をミュータブルに借用
         let option = self.options.entry(round_id).or_insert_with(HashMap::new);
         let opt = option.entry(youtube_id.clone()).or_insert(Option {
             youtube_id: youtube_id.clone(),
-            // creation_time: Clock::get().unwrap().unix_timestamp as u64,
             total_invested: 0,
             total_shares: 0,
             shares: HashMap::new(),
@@ -77,9 +67,8 @@ impl Market {
         });
 
         opt.total_invested += amount;
-
-        // ユーザーのシェアを更新
-        *opt.shares.entry(user).or_insert(0) += amount; // ここでミュータブルな参照を使用
+        *opt.shares.entry(user).or_insert(0) += amount;
+        opt.total_shares += amount;
         round.total_invested += amount;
     }
 
@@ -92,31 +81,29 @@ impl Market {
         round.winner_ids = winner_ids;
     }
 
-    pub fn claim_reward(&mut self, youtube_id: String, round_id: u64, user: Pubkey) -> u64 {
+    pub fn claim_reward(&mut self, youtube_id: String, round_id: u64, user: Pubkey) -> u128 {
         let option = self
             .options
             .get_mut(&round_id)
-            .and_then(|o| o.get_mut(&youtube_id)) // ミュータブルな参照を取得
+            .and_then(|o| o.get_mut(&youtube_id))
             .expect("Option does not exist");
 
         let shares = option.shares.get(&user).unwrap_or(&0);
         assert!(*shares > 0, "No claimable reward in this market");
 
-        // 報酬計算ロジックを追加
-        let reward = (option.total_invested * *shares) / option.total_shares; // 簡易的な報酬計算
-        option.shares.insert(user, 0); // シェアをリセット
+        let reward = (option.total_invested * *shares) / option.total_shares;
+        option.shares.insert(user, 0);
         reward
     }
 }
 
 entrypoint!(process_instruction);
-// エントリーポイント
+
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
     // コントラクトの処理ロジックを実装
-    // 例えば、create_roundやplace_betなどのメソッドを呼び出す
     Ok(())
 }
