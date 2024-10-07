@@ -1,5 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::clock::Clock;
 use solana_program::entrypoint::ProgramResult;
+use solana_program::sysvar::Sysvar;
 use solana_program::{account_info::AccountInfo, entrypoint, pubkey::Pubkey};
 use std::collections::HashMap;
 
@@ -72,13 +74,22 @@ impl Market {
         round.total_invested += amount;
     }
 
-    pub fn resolve_round(&mut self, round_id: u64, winner_ids: Vec<String>) {
+    pub fn resolve_round(&mut self, round_id: u64, winner_ids: Vec<String>) -> ProgramResult {
         let round = self
             .rounds
             .get_mut(&round_id)
             .expect("Round does not exist");
+
+        let current_time = Clock::get()?.unix_timestamp as u64;
+
+        // Check if 48 hours (seconds) have elapsed
+        if current_time < round.betting_deadline + 48 * 3600 {
+            return Err(solana_program::program_error::ProgramError::InvalidAccountData);
+        }
+
         round.is_active = false;
         round.winner_ids = winner_ids;
+        Ok(())
     }
 
     pub fn claim_reward(&mut self, youtube_id: String, round_id: u64, user: Pubkey) -> u128 {
@@ -100,9 +111,9 @@ impl Market {
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8],
+    _program_id: &Pubkey,
+    _accounts: &[AccountInfo],
+    _instruction_data: &[u8],
 ) -> ProgramResult {
     // コントラクトの処理ロジックを実装
     Ok(())
