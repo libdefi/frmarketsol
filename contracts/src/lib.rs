@@ -68,10 +68,18 @@ impl Market {
             resolved: false,
         });
 
-        opt.total_invested += amount;
-        *opt.shares.entry(user).or_insert(0) += amount;
-        opt.total_shares += amount;
+        // Bonding Curve Price Calculator
+        let share_price = Self::calculate_share_price(opt.total_invested);
+        let shares_to_issue = amount / share_price;
+
+        *opt.shares.entry(user).or_insert(0) += shares_to_issue;
+        opt.total_shares += shares_to_issue;
         round.total_invested += amount;
+        opt.total_invested += amount;
+    }
+
+    fn calculate_share_price(total_invested: u128) -> u128 {
+        1 + (total_invested / 100)
     }
 
     pub fn resolve_round(&mut self, round_id: u64, winner_ids: Vec<String>) -> ProgramResult {
@@ -115,6 +123,5 @@ pub fn process_instruction(
     _accounts: &[AccountInfo],
     _instruction_data: &[u8],
 ) -> ProgramResult {
-    // コントラクトの処理ロジックを実装
     Ok(())
 }
