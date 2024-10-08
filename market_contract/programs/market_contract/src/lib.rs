@@ -24,7 +24,6 @@ pub mod market_contract {
             winner_ids: Vec::new(),
         };
 
-        // Vecに新しいラウンドを追加
         market.rounds.push((round_id, new_round));
         market.current_round_id = round_id;
         Ok(())
@@ -101,25 +100,41 @@ pub mod market_contract {
     //     Ok(())
     // }
 
-    // pub fn claim_reward(ctx: Context<ClaimReward>, youtube_id: String, round_id: u64) -> Result<()> {
-    //     let market = &mut ctx.accounts.market;
-    //     let option = market
-    //         .options
-    //         .get_mut(&round_id)
-    //         .and_then(|o| o.get_mut(&youtube_id))
-    //         .ok_or(ErrorCode::OptionNotFound)?;
+    pub fn claim_reward(ctx: Context<ClaimReward>, youtube_id: String, round_id: u64) -> Result<()> {
+        let market = &mut ctx.accounts.market;
 
-    //     let shares = option.shares.get(&ctx.accounts.user.key).copied().unwrap_or(0);
-    //     require!(shares > 0, ErrorCode::NoClaimableReward);
+        // Search for options based on round_id
+        let option_vec = market
+            .options
+            .iter_mut()
+            .find(|(id, _)| *id == round_id)
+            .ok_or(ErrorCode::OptionNotFound)?;
 
-    //     let reward = (option.total_invested * shares) / option.total_shares;
-    //     option.shares.insert(*ctx.accounts.user.key, 0);
+        // Get BettingOption based on youtube_id
+        let option = option_vec.1
+            .iter_mut()
+            .find(|(id, _)| *id == youtube_id)
+            .ok_or(ErrorCode::OptionNotFound)?;
 
-    //     // Transfer reward to user (you'll need to implement this)
-    //     // ...
+        // Get your share of users
+        let shares = option.1.shares.iter()
+            .find(|(pubkey, _)| *pubkey == *ctx.accounts.user.key) 
+            .map(|(_, shares)| *shares)
+            .unwrap_or(0);
+        
+        require!(shares > 0, ErrorCode::NoClaimableReward);
 
-    //     Ok(())
-    // }
+        let reward = (option.1.total_invested * shares) / option.1.total_shares;
+        
+        // Set user share to 0
+        option.1.shares.retain(|(pubkey, _)| *pubkey != *ctx.accounts.user.key);
+        option.1.shares.push((*ctx.accounts.user.key, 0));
+
+        // Transfer reward to user (you'll need to implement this)
+        // ...
+
+        Ok(())
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
