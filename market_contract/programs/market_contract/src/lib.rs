@@ -85,20 +85,34 @@ pub mod market_contract {
         Ok(())
     }
 
-    // pub fn resolve_round(ctx: Context<ResolveRound>, round_id: u64, winner_ids: Vec<String>) -> Result<()> {
-    //     let market = &mut ctx.accounts.market;
-    //     let round = market.rounds.get_mut(&round_id).ok_or(ErrorCode::RoundNotFound)?;
+    pub fn resolve_round(ctx: Context<ResolveRound>, round_id: u64, winner_ids: Vec<String>) -> Result<()> {
+        let market = &mut ctx.accounts.market;
 
-    //     let current_time = Clock::get()?.unix_timestamp;
-    //     require!(
-    //         current_time >= round.betting_deadline + 48 * 3600,
-    //         ErrorCode::TooEarlyToResolve
-    //     );
+        // Search rounds based on round_id
+        let round = market
+            .rounds
+            .iter_mut()
+            .find(|(id, _)| *id == round_id)
+            .ok_or(ErrorCode::RoundNotFound)?;
 
-    //     round.is_active = false;
-    //     round.winner_ids = winner_ids;
-    //     Ok(())
-    // }
+        // Deselect round references
+        let round = &mut round.1;
+
+        // Get current time
+        let current_time = Clock::get()?.unix_timestamp;
+
+        // Check out betting_deadline
+        require!(
+            current_time >= round.betting_deadline + 48 * 3600,
+            ErrorCode::TooEarlyToResolve
+        );
+
+        // Resolve rounds
+        round.is_active = false;
+        round.winner_ids = winner_ids;
+
+        Ok(())
+    }
 
     pub fn claim_reward(ctx: Context<ClaimReward>, youtube_id: String, round_id: u64) -> Result<()> {
         let market = &mut ctx.accounts.market;
