@@ -174,33 +174,33 @@ pub mod market_contract {
         let epoch_config_account_info = ctx.accounts.epoch_config.to_account_info();
         let epoch_account_info = ctx.accounts.epoch.to_account_info();
  
-        // verify_proof(
-        //     CpiContext::new(
-        //         reclaim_program_info,
-        //         VerifyProof {
-        //             epoch_config: epoch_config_account_info,
-        //             epoch: epoch_account_info,
-        //             signer: signer_account_info,
-        //         },
-        //     ),
-        //     VerifyProofArgs {
-        //         claim_info: ReclaimClaimInfo {
-        //             parameters: claim_info.parameters,
-        //             context_message: claim_info.context_message,
-        //             provider: claim_info.provider,
-        //             context_address: claim_info.context_address,
-        //         },
-        //         signed_claim: ReclaimSignedClaim {
-        //             claim_data: ReclaimClaimData {
-        //                 epoch_index: signed_claim.claim_data.epoch_index,
-        //                 timestamp: signed_claim.claim_data.timestamp,
-        //                 identifier: signed_claim.claim_data.identifier,
-        //                 owner: signed_claim.claim_data.owner,
-        //             },
-        //             signatures: signed_claim.signatures,
-        //         },
-        //     },
-        // )?;
+        verify_proof(
+            CpiContext::new(
+                reclaim_program_info,
+                VerifyProof {
+                    epoch_config: epoch_config_account_info,
+                    epoch: epoch_account_info,
+                    signer: signer_account_info,
+                },
+            ),
+            VerifyProofArgs {
+                claim_info: ReclaimClaimInfo {
+                    parameters: claim_info.parameters,
+                    context_message: claim_info.context_message,
+                    provider: claim_info.provider,
+                    context_address: claim_info.context_address,
+                },
+                // signed_claim: ReclaimSignedClaim {
+                //     claim_data: ReclaimClaimData {
+                //         epoch_index: signed_claim.claim_data.epoch_index,
+                //         timestamp: signed_claim.claim_data.timestamp,
+                //         identifier: signed_claim.claim_data.identifier,
+                //         owner: signed_claim.claim_data.owner,
+                //     },
+                //     signatures: signed_claim.signatures,
+                // },
+            },
+        )?;
  
         Ok(())
     }
