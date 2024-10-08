@@ -1,4 +1,13 @@
 use anchor_lang::prelude::*;
+use reclaim::cpi::accounts::VerifyProof;
+use reclaim::cpi::verify_proof;
+use reclaim::instructions::VerifyProofArgs;
+use reclaim::program::Reclaim;
+use reclaim::state::ClaimData as ReclaimClaimData;
+use reclaim::state::ClaimInfo as ReclaimClaimInfo;
+use reclaim::state::SignedClaim as ReclaimSignedClaim;
+use reclaim::state::{Epoch, EpochConfig};
+use reclaim::state::Epoch as ReclaimEpoch;
 declare_id!("2ofxvLdNQMNFmg6WYovFdnfU6GconP7sYhbipYJXUYuw");
 
 #[program]
@@ -149,6 +158,52 @@ pub mod market_contract {
 
         Ok(())
     }
+    
+    pub fn verify<'info>(
+        ctx: Context<'_, '_, '_, 'info, Verify<'info>>,
+        args: VerifyArgs,
+    ) -> Result<()> {
+        let VerifyArgs {
+            claim_info,
+            signed_claim,
+        } = args;
+ 
+        let signer_account_info = ctx.accounts.signer.to_account_info();
+        let reclaim_program_info = ctx.accounts.reclaim_program.to_account_info();
+ 
+        let epoch_config_account_info = ctx.accounts.epoch_config.to_account_info();
+        let epoch_account_info = ctx.accounts.epoch.to_account_info();
+ 
+        // verify_proof(
+        //     CpiContext::new(
+        //         reclaim_program_info,
+        //         VerifyProof {
+        //             epoch_config: epoch_config_account_info,
+        //             epoch: epoch_account_info,
+        //             signer: signer_account_info,
+        //         },
+        //     ),
+        //     VerifyProofArgs {
+        //         claim_info: ReclaimClaimInfo {
+        //             parameters: claim_info.parameters,
+        //             context_message: claim_info.context_message,
+        //             provider: claim_info.provider,
+        //             context_address: claim_info.context_address,
+        //         },
+        //         signed_claim: ReclaimSignedClaim {
+        //             claim_data: ReclaimClaimData {
+        //                 epoch_index: signed_claim.claim_data.epoch_index,
+        //                 timestamp: signed_claim.claim_data.timestamp,
+        //                 identifier: signed_claim.claim_data.identifier,
+        //                 owner: signed_claim.claim_data.owner,
+        //             },
+        //             signatures: signed_claim.signatures,
+        //         },
+        //     },
+        // )?;
+ 
+        Ok(())
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -174,6 +229,16 @@ pub struct Market {
     pub current_round_id: u64,
     pub rounds: Vec<(u64, Round)>,
     pub options: Vec<(u64, Vec<(String, BettingOption)>)>,
+}
+
+#[account]
+pub struct EpochWrapper {
+    pub inner: ReclaimEpoch,
+}
+
+#[account]
+pub struct EpochConfigWrapper {
+    pub inner: ReclaimEpochConfig,
 }
 
 #[derive(Accounts)]
@@ -213,6 +278,45 @@ pub struct ClaimReward<'info> {
     pub user: Signer<'info>,
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct VerifyArgs {
+    pub claim_info: ClaimInfo,
+    pub signed_claim: SignedClaim,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct SignedClaim {
+    pub claim_data: ClaimData,
+    pub signatures: Vec<[u8; 65]>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ClaimInfo {
+    pub provider: String,
+    pub parameters: String,
+    pub context_address: Pubkey,
+    pub context_message: String,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ClaimData {
+    pub identifier: [u8; 32],
+    pub owner: String,
+    pub timestamp: u32,
+    pub epoch_index: u32,
+}
+
+#[derive(Accounts)]
+pub struct Verify<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    pub epoch_config: Account<'info, EpochConfigWrapper>,
+    pub epoch: Account<'info, EpochWrapper>,
+    pub reclaim_program: Program<'info, Reclaim>,
+    pub system_program: Program<'info, System>,
+}
+
+
 #[error_code]
 pub enum ErrorCode {
     #[msg("Round not found")]
@@ -230,3 +334,4 @@ pub enum ErrorCode {
 fn calculate_share_price(total_invested: u128) -> u128 {
     1 + (total_invested / 100)
 }
+
